@@ -4,6 +4,9 @@ import Heading from '../../components/Shared/Heading'
 import Button from '../../components/Shared/Button/Button'
 import PurchaseModal from '../../components/Modal/PurchaseModal'
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import { useLoaderData } from 'react-router-dom'
 
 const PlantDetails = () => {
   let [isOpen, setIsOpen] = useState(false)
@@ -11,6 +14,9 @@ const PlantDetails = () => {
   const closeModal = () => {
     setIsOpen(false)
   }
+
+  const plant = useLoaderData();
+  console.log(plant.name);
 
   return (
     <Container>
