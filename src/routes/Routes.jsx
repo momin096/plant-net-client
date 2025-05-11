@@ -28,7 +28,6 @@ export const router = createBrowserRouter([
       {
         path: '/plant/:id',
         element: <PlantDetails />,
-        loader: ({ params }) => fetch(`/plant/${params.id}`)
       },
     ],
   },

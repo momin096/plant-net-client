@@ -4,24 +4,40 @@ import Heading from '../../components/Shared/Heading'
 import Button from '../../components/Shared/Button/Button'
 import PurchaseModal from '../../components/Modal/PurchaseModal'
 import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { useLoaderData } from 'react-router-dom'
+import LoadingSpinner from '../../components/Shared/LoadingSpinner'
+import useAuth from '../../hooks/useAuth.js'
+
 
 const PlantDetails = () => {
   let [isOpen, setIsOpen] = useState(false)
+  const { id } = useParams();
+  const {user} = useAuth();
+
+  const { data: plant = [], isLoading, refetch } = useQuery({
+    queryKey: ['plant', id],
+    queryFn: async () => {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/plant/${id}`)
+      return res.data
+    }
+  })
+
+  const { _id, name, category, description, price, quantity, imageUrl, seller } = plant || {}
 
   const closeModal = () => {
     setIsOpen(false)
   }
 
-  const plant = useLoaderData();
-  console.log(plant.name);
+  if (isLoading) {
+    return <LoadingSpinner />
+  }
 
   return (
     <Container>
       <Helmet>
-        <title>Money Plant</title>
+        <title>{name}</title>
       </Helmet>
       <div className='mx-auto flex flex-col lg:flex-row justify-between w-full gap-12'>
         {/* Header */}
@@ -29,9 +45,9 @@ const PlantDetails = () => {
           <div>
             <div className='w-full overflow-hidden rounded-xl'>
               <img
-                className='object-cover w-full'
-                src='https://i.ibb.co/DDnw6j9/1738597899-golden-money-plant.jpg'
-                alt='header image'
+                className='object-cover w-full lg:max-h-screen'
+                src={imageUrl}
+                alt={name}
               />
             </div>
           </div>
@@ -39,17 +55,15 @@ const PlantDetails = () => {
         <div className='md:gap-10 flex-1'>
           {/* Plant Info */}
           <Heading
-            title={'Money Plant'}
-            subtitle={`Category: ${'Succulent'}`}
+            title={name}
+            subtitle={`Category: ${category}`}
           />
           <hr className='my-6' />
           <div
             className='
           text-lg font-light text-neutral-500'
           >
-            Professionally deliver sticky testing procedures for next-generation
-            portals. Objectively communicate just in time infrastructures
-            before.
+            {description}
           </div>
           <hr className='my-6' />
 
@@ -63,7 +77,7 @@ const PlantDetails = () => {
                 gap-2
               '
           >
-            <div>Seller: Shakil Ahmed Atik</div>
+            <div>Seller: {seller.name}</div>
 
             <img
               className='rounded-full'
@@ -71,7 +85,7 @@ const PlantDetails = () => {
               width='30'
               alt='Avatar'
               referrerPolicy='no-referrer'
-              src='https://lh3.googleusercontent.com/a/ACg8ocKUMU3XIX-JSUB80Gj_bYIWfYudpibgdwZE1xqmAGxHASgdvCZZ=s96-c'
+              src={seller.image}
             />
           </div>
           <hr className='my-6' />
@@ -83,19 +97,19 @@ const PlantDetails = () => {
                 text-neutral-500
               '
             >
-              Quantity: 10 Units Left Only!
+              Quantity: {quantity > 0 ? `${quantity} 'Units Left Only!` : 'Out Of Stock'}
             </p>
           </div>
           <hr className='my-6' />
           <div className='flex justify-between'>
-            <p className='font-bold text-3xl text-gray-500'>Price: 10$</p>
+            <p className='font-bold text-3xl text-gray-500'>Price: {price}$</p>
             <div>
-              <Button label='Purchase' />
+              <Button disabled={user?.email === seller?.email} onClick={() => setIsOpen(true)} label={quantity > 0 ? 'Purchase' : 'Out Of Stock'} />
             </div>
           </div>
           <hr className='my-6' />
 
-          <PurchaseModal closeModal={closeModal} isOpen={isOpen} />
+        <PurchaseModal plant={plant} refetch={refetch} closeModal={closeModal} isOpen={isOpen} />
         </div>
       </div>
     </Container>
