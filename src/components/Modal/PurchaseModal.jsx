@@ -57,7 +57,10 @@ const PurchaseModal = ({ closeModal, isOpen, plant, refetch }) => {
     // set purchase details in DB
     try {
       await axiosSecure.post('/orders', purchaseInfo)
-      await axiosSecure.patch(`/plants/quantity/${_id}`, { quantityToUpdate: totalQuantity })
+      await axiosSecure.patch(`/plants/quantity/${_id}`, {
+        quantityToUpdate: totalQuantity,
+        status: 'decrease'
+      })
       toast.success('Order Placed!!')
       refetch();
 
