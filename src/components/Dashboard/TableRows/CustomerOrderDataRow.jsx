@@ -82,6 +82,7 @@ CustomerOrderDataRow.propTypes = {
   order: PropTypes.object,
   refetch: PropTypes.func,
   item: PropTypes.object,
+  orderData: PropTypes.object,
 }
 
 export default CustomerOrderDataRow
